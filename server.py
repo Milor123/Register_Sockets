@@ -1,13 +1,29 @@
 import SocketServer
 from deco.decorator import requiere
-class tcpserver(SocketServer.BaseRequestHandler):
-    Student = None
-    def handle(self):
-        self.Student = self.request.recv(1024)
+import pdb
+import cPickle as pickle
+from structure import Person, Student, Teacher
 
-    def register(self, Person):
-        Register(Person)
-        self.request.send('Good  :3')
+class tcpserver(SocketServer.BaseRequestHandler):
+
+    def handle(self):
+        self.Data = self.request.recv(1024)
+        try:
+            loadobj= pickle.loads(self.Data)
+            Register(loadobj)
+            self.request.send('The user has been successfully registered.')
+            pdb.set_trace()
+        except pickle.UnpicklingError:
+            myquery= Query(self.Data)
+            stringquery = pickle.dumps(myquery, -1)
+            self.request.send(stringquery)
+        except NameError as e:
+            self.request.send('Error: {}'.format(e))
+
+
+    def register(self):
+        Register(self.Persona)
+
 
 def main():
     host = ('127.0.0.1', 9994)
@@ -42,8 +58,7 @@ class Register(Data, object):
             if __info.get('identification') == self.People.identification \
                     and __info.get('status') == self.People.status:
                 # if identification is found in DB, and try register with the same status
-                print 'the people has already been registered previously, try ask about your status'
-                exit(0)
+                raise NameError ('the people has already been registered previously, try ask about your status')
             elif __info.get('identification') == self.People.identification \
                     and not __info.get('status') == self.People.status:
                 # if was found but he try register with another status
@@ -101,7 +116,7 @@ class Register(Data, object):
                   }
 
         self.__DB.append(__data)
-        query.DB = self.__DB
+        Query.DB = self.__DB
 
         ####################
         #### Data Print ####
@@ -110,7 +125,7 @@ class Register(Data, object):
         #print self.__DB
 
 
-class query(object):
+class Query(object):
     DB = []
     def __init__(self, attr, **kwargs ):
         self.attr = attr

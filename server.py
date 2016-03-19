@@ -1,10 +1,12 @@
+# /usr/bin/env python 2.7
+# -*- coding: utf-8 -*-
 import SocketServer
 from deco.decorator import requiere
 import pdb
 import cPickle as pickle
 import threading
 # import structure, because pickle need for serializate
-from structure import Person, Student, Teacher
+from client import Person, Student, Teacher
 
 class tcpserver(SocketServer.BaseRequestHandler):
 
@@ -12,9 +14,9 @@ class tcpserver(SocketServer.BaseRequestHandler):
         self.Data = ''
         while self.Data != 'exit':
             self.Data = self.request.recv(1024)
-            #cur_thread = threading.current_thread()
             try:
                 loadobj= pickle.loads(self.Data)
+                Register(loadobj)
                 self.request.send('The user has been successfully registered.')
                 print Query.DB
                 print '========================='
@@ -28,9 +30,6 @@ class tcpserver(SocketServer.BaseRequestHandler):
             except NameError as e:
                 self.request.send('Error: {}'.format(e))
 
-
-#class ThreadingUDPServer(ThreadingMixIn, UDPServer):
-#    pass
 
 def main():
     host = ('127.0.0.1', 9994)
@@ -162,17 +161,6 @@ class Query(object):
                 if expresion.search(x.get(self.attrvalue[0])):
                     return x
         return None
-print 'xd'
+print 'Server running...'
 main()
-#Student('maria', 'soaaex', 2, 'famale', '1225689')
-#Student('jose', 'Boleor', 4, 'Male', '5536991')
-#Student('Joseeeeaa', 'Boleor', 4, 'Famale', '236991')
-#print '=============================================='
-#print query.DB
-#print '=============================================='
-#print query('name=maria').result
-#Teacher('Joseeeeaa', 'Boleor', 4, 'Famale', '236991')
-#Student('jose', 'Boleor', 4, 'Male', '78777777777777')
-# Note: The Data printed, show step by step the creation of dict, on the one hand corresponds to the database
-
 

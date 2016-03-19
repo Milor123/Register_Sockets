@@ -3,7 +3,7 @@ import threading
 import socket
 from abc import ABCMeta, abstractmethod
 from deco.decorator import requiere
-class Person(threading.Thread, object):
+class Person(object):
 
     __metaclass__ = ABCMeta
     name = str

@@ -2,28 +2,35 @@ import SocketServer
 from deco.decorator import requiere
 import pdb
 import cPickle as pickle
+import threading
+# import structure, because pickle need for serializate
 from structure import Person, Student, Teacher
 
 class tcpserver(SocketServer.BaseRequestHandler):
 
     def handle(self):
-        self.Data = self.request.recv(1024)
-        try:
-            loadobj= pickle.loads(self.Data)
-            Register(loadobj)
-            self.request.send('The user has been successfully registered.')
-            pdb.set_trace()
-        except pickle.UnpicklingError:
-            myquery= Query(self.Data)
-            stringquery = pickle.dumps(myquery, -1)
-            self.request.send(stringquery)
-        except NameError as e:
-            self.request.send('Error: {}'.format(e))
+        self.Data = ''
+        while self.Data != 'exit':
+            self.Data = self.request.recv(1024)
+            #cur_thread = threading.current_thread()
+            try:
+                loadobj= pickle.loads(self.Data)
+                self.request.send('The user has been successfully registered.')
+                print Query.DB
+                print '========================='
+                pdb.set_trace()
+            except pickle.UnpicklingError:
+                myquery= Query(self.Data).result
+                stringquery = pickle.dumps(myquery, -1)
+                # Return query data
+                self.request.send(stringquery)
+                # NameError if the user was register and now can't register
+            except NameError as e:
+                self.request.send('Error: {}'.format(e))
 
 
-    def register(self):
-        Register(self.Persona)
-
+#class ThreadingUDPServer(ThreadingMixIn, UDPServer):
+#    pass
 
 def main():
     host = ('127.0.0.1', 9994)

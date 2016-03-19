@@ -21,16 +21,17 @@ import threading
 import socket
 from abc import ABCMeta, abstractmethod
 from deco.decorator import requiere
+import pdb
 
 # Person inherit from threading.Thread
 # owing to we would need divide process in the sub nucleus, when multiple users registers required
 
-
-host = ('127.0.0.1', 9994)
-socketconn = socket.socket()
-socketconn.connect(host)
-
-class Person(threading.Thread, object):
+def connect():
+    global socketconn
+    host = ('127.0.0.1', 9994)
+    socketconn = socket.socket()
+    socketconn.connect(host)
+class Person(object):
 
     __metaclass__ = ABCMeta
     name = str
@@ -55,7 +56,9 @@ class Person(threading.Thread, object):
         self.sex = sex
         self.identification = identification
         #Register(self)
-        #pickle.HIGHEST_PROTOCOL
+        #pickle.HIGHEST_PROTOCOL = -1
+
+        global socketconn
         stringobj = pickle.dumps(self, -1)
         socketconn.send(stringobj)
         print socketconn.recv(1024)
@@ -77,9 +80,22 @@ class Teacher(Person):
         self.status = 'teacher'  # token for teacher
         super(Teacher, self).__init__(name, last_name, age, sex, identification)
 
+class simple_query(object):
+
+    def __init__(self, attr):
+        self.attr = attr
+        self.result = self.getdata()
+
+    def getdata(self):
+        global socketconn
+        socketconn.send(self.attr)
+        stringobj = socketconn.recv(1024)
+        return pickle.loads(stringobj)
 print 'client'
+connect()
 Student('maria', 'soaaex', 2, 'famale', '1225689')
-Student('maria', 'soaaex', 2, 'famale', '1225689')
+Teacher('Joseeeeaa', 'Boleor', 4, 'Famale', '236991')
+pdb.set_trace()
 socketconn.close()
 #Student('jose', 'Boleor', 4, 'Male', '5536991')
 #Student('Joseeeeaa', 'Boleor', 4, 'Famale', '236991')
@@ -87,7 +103,7 @@ socketconn.close()
 #print query.DB
 #print '=============================================='
 #print query('name=maria').result
-#Teacher('Joseeeeaa', 'Boleor', 4, 'Famale', '236991')
+
 #Student('jose', 'Boleor', 4, 'Male', '78777777777777')
 # Note: The Data printed, show step by step the creation of dict, on the one hand corresponds to the database
 
